@@ -1,10 +1,9 @@
-// TODO: Include packages needed for this application
 const inquirer = require('inquirer');
 const fs = require('fs');
-const { log } = require('console');
 
 //List of possible licenses to be used by inquirer prompt
 const licenses = [
+    'No License',
     'GNU AGPLv3',
     'GNU GPLv3',
     'GNU LGPLv3',
@@ -17,6 +16,8 @@ const licenses = [
 
 //Array of markup badges that correspond to the selected license
 const licenseBadges = [
+    //no license
+    '',
     //gnuagpl
     '[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)',
     //gnugpl
@@ -35,8 +36,9 @@ const licenseBadges = [
     '[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)',
 ];
 
-//The selected license badge (populated when badgeSelect() is called).
-licenseBadge = '';
+//The selected license / license badge (populated when badgeSelect() is called).
+selectedBadge = '';
+selectedLicense = '';
 
 //Question prompts used by inquirer
 const prompts = [
@@ -88,14 +90,6 @@ const prompts = [
     },
 ];
 
-function badgeSelect() {
-    for (let i = 0; i< licenses.length; i++) {
-      if (licenses[i] == answers.license) {
-        licenseBadge = licenseBadges[i];
-      };
-    };
-}
-
 // Creates the README file w/ user responses.
 function writeToFile(fileName, data) {
     fs.writeFile(`./results/${fileName}`, data, (err) =>
@@ -103,25 +97,33 @@ function writeToFile(fileName, data) {
     );
 };
 
-//Runs the app
-function init() {
+//selects the badge for the user-selected license.
+function badgeSelect( { license } ) {
+    if (license == licenses[0]) {
+        selectedBadge = '';
+        selectedLicense = '';
+    } else {
+        for (let i = 0; i< licenses.length; i++) {
+            if (licenses[i] == license) {
+                selectedBadge = licenseBadges[i];
+            };
+        };
+        selectedLicense =
+`## License
+        
+This project is covered under: **${license}**`;
+    };
+};
 
-    inquirer
-        .prompt(prompts)
-        .then((answers) =>{
+const generate = ({ projectTitle, description, installation, usage, contribution, testing, license, username, email }) => {
+    return md =  
+`# ${projectTitle}
 
-            //Sets the correct badge for the user-selected license.
-            badgeSelect();
-
-            //'var content' formats answers into a string usable by the writeToFile function
-            var content =
-`# ${answers.projectTitle}
-
-${licenseBadge}
+${selectedBadge}
 
 ## Description
 
-${answers.description}
+${description}
 
 ## Table of Contents
 
@@ -135,42 +137,36 @@ ${answers.description}
 
 ## Installation
 
-${answers.installation}
+${installation}
 
 ## Usage
 
-${answers.usage}
+${usage}
 
 ## Contributing
 
-${answers.contribution}
+${contribution}
 
 ## Tests
 
-${answers.testing}
+${testing}
 
-## License
-
-This project is covered under: **${answers.license}**
+${selectedLicense}
 
 ## Questions
 
-**[Find me on GitHub here](https://www.github.com/${answers.username})**, or contact me with any question you may have via email: **${answers.email}**`;
+**[Find me on GitHub here](https://www.github.com/${username})**, or contact me with any question you may have via email: **${email}**`;
+};
 
-            //selects the badge for the user-selected license.
-            function badgeSelect() {
-                for (let i = 0; i< licenses.length; i++) {
-                    if (licenses[i] == answers.license) {
-                        licenseBadge = licenseBadges[i];
-                    };
-                };
-            };
+const init = () => {
 
-            //Sends formatted answers to the writeToFile function via the 'content' variable. Also sends generated file name based on user-inputted project title.
-            writeToFile(`README-${answers.projectTitle}.md`, content);
+    inquirer
+        .prompt(prompts)
+        .then((answers) => {
+            badgeSelect(answers),
+            writeToFile(`README-${answers.projectTitle}.md`, generate(answers))})
+        .catch((err) => console.error(err));
+};
 
-        });
-}
-
-// Function call to initialize app
+//Initialize app
 init();
