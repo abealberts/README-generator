@@ -13,7 +13,6 @@ This is a simple Node.js app that will generate a README based on user inputs.
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Credits](#credits)
 - [License](#license)
 
 ## Installation
