@@ -155,7 +155,7 @@ This project is covered under: **${answers.license}**
 
 ## Questions
 
-**[Find me on GitHub here](https://www.github.com/${answers.username})**, or contact me with any question you may have fordvia email: **${answers.email}**`;
+**[Find me on GitHub here](https://www.github.com/${answers.username})**, or contact me with any question you may have via email: **${answers.email}**`;
 
             //selects the badge for the user-selected license.
             function badgeSelect() {
